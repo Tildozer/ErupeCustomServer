@@ -71,6 +71,7 @@ type Config struct {
 	BinPath                string `mapstructure:"BinPath"`
 	Language               string
 	DisableSoftCrash       bool     // Disables the 'Press Return to exit' dialog allowing scripts to reboot the server automatically
+	SeedDBNeeded		   bool
 	HideLoginNotice        bool     // Hide the Erupe notice on login
 	LoginNotices           []string // MHFML string of the login notices displayed
 	PatchServerManifest    string   // Manifest patch server override

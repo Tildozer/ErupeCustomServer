@@ -16,6 +16,7 @@
     "OutputDir":"screenshots",
     "UploadQuality":100
   },
+  "SeedDBNeeded": true,
   "DeleteOnSaveCorruption": false,
   "ClientMode": "ZZ",
   "QuestCacheExpiry": 300,

@@ -17,6 +17,7 @@ import (
 	"erupe-ce/server/discordbot"
 	"erupe-ce/server/entranceserver"
 	"erupe-ce/server/signserver"
+	"erupe-ce/schemas"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
@@ -145,6 +146,7 @@ func main() {
 		config.Database.Database,
 	)
 
+	// Open a single database connection that will be used throughout the application
 	db, err := sqlx.Open("postgres", connectString)
 	if err != nil {
 		preventClose(fmt.Sprintf("Database: Failed to open, %s", err.Error()))
@@ -155,6 +157,19 @@ func main() {
 	if err != nil {
 		preventClose(fmt.Sprintf("Database: Failed to ping, %s", err.Error()))
 	}
+
+	// Initialize the database if needed
+	if config.SeedDBNeeded {
+		logger.Info("Database: Initializing schema...")
+		sqlDB := db.DB // Get the underlying sql.DB from sqlx.DB
+		err := schemas.InitializeDatabase(sqlDB)
+		if err != nil {
+			preventClose(fmt.Sprintf("Database: Failed to initialize schema, %s", err.Error()))
+		}
+		logger.Info("Database: Schema initialized successfully")
+		config.SeedDBNeeded = false
+	}
+
 	logger.Info("Database: Started successfully")
 
 	// Clear stale data
