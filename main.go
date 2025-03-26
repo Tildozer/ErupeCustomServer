@@ -167,7 +167,6 @@ func main() {
 			preventClose(fmt.Sprintf("Database: Failed to initialize schema, %s", err.Error()))
 		}
 		logger.Info("Database: Schema initialized successfully")
-		config.SeedDBNeeded = false
 	}
 
 	logger.Info("Database: Started successfully")

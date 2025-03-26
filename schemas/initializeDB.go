@@ -12,26 +12,20 @@ import (
 
 func InitializeDatabase(db *sql.DB) error {
     
-    log.Println("Executing init.sql...")
-    err := executeSQL(db, filepath.Join("schemas", "SCHEMA.sql"))
-    if err != nil {
-        return err
-    }
-
-    log.Println("Executing bundled schema files...")
-    err = executeSQLDir(db, filepath.Join("schemas", "bundled-schema"))
-    if err != nil {
-        return err
-    }
-    
     log.Println("Executing update schema files...")
-    err = executeSQLDir(db, filepath.Join("schemas", "update-schema"))
+    err := executeSQLDir(db, filepath.Join("schemas", "update-schema"))
     if err != nil {
         return err
     }
     
     log.Println("Executing patch schema files...")
     err = executeSQLDirInOrder(db, filepath.Join("schemas", "patch-schema"))
+    if err != nil {
+        return err
+    }
+
+	log.Println("Executing bundled schema files...")
+    err = executeSQLDir(db, filepath.Join("schemas", "bundled-schema"))
     if err != nil {
         return err
     }
