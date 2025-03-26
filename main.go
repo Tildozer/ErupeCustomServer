@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"log"
 	"os/signal"
 	"runtime/debug"
 	"syscall"
 	"time"
+	"strconv"
 
 	"erupe-ce/server/api"
 	"erupe-ce/server/channelserver"
@@ -19,6 +21,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"go.uber.org/zap"
+	"github.com/joho/godotenv"
 )
 
 // Temporary DB auto clean on startup for quick development & testing.
@@ -41,7 +44,10 @@ var Commit = func() string {
 }
 
 func main() {
-	var err error
+	err := godotenv.Load()
+  	  if err != nil {
+      log.Fatal("Error loading .env file")
+    }
 
 	var zapLogger *zap.Logger
 	config := _config.ErupeConfig
@@ -53,9 +59,9 @@ func main() {
 	logger.Info(fmt.Sprintf("Starting Erupe (9.3b-%s)", Commit()))
 	logger.Info(fmt.Sprintf("Client Mode: %s (%d)", config.ClientMode, config.RealClientMode))
 
-	if config.Database.Password == "" {
-		preventClose("Database password is blank")
-	}
+	// if config.Database.Password == "" {
+	// 	preventClose("Database password is blank")
+	// }
 
 	if net.ParseIP(config.Host) == nil {
 		ips, _ := net.LookupIP(config.Host)
@@ -102,13 +108,40 @@ func main() {
 		logger.Info("Discord: Disabled")
 	}
 
+	host := os.Getenv("DB-HOST")
+	dbHost := config.Database.Host
+	if host != "" {
+		dbHost = host
+	}
+	
+	port := os.Getenv("DB-PORT")
+	dbPort := config.Database.Port
+	if port != "" {
+		portInt, err := strconv.Atoi(port)
+		if err == nil {
+			dbPort = portInt
+		}
+	}
+	
+	user := os.Getenv("DB-USER")
+	dbUser := config.Database.User
+	if user != "" {
+		dbUser = user
+	}
+	
+	password := os.Getenv("DB-PASSWORD")
+	dbPassword := config.Database.Password
+	if password != "" {
+		fmt.Println("Password: ", password)
+		dbPassword = password
+	}
 	// Create the postgres DB pool.
 	connectString := fmt.Sprintf(
 		"host='%s' port='%d' user='%s' password='%s' dbname='%s' sslmode=disable",
-		config.Database.Host,
-		config.Database.Port,
-		config.Database.User,
-		config.Database.Password,
+		dbHost,
+		dbPort,
+		dbUser,
+		dbPassword,
 		config.Database.Database,
 	)
 

@@ -9,3 +9,5 @@ savedata/*/
 *.bat
 /docker/db-data
 screenshots/*
+erupe-ce
+.env
